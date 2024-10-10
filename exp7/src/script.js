@@ -7,14 +7,25 @@ import GUI from 'lil-gui'
 const gui = new GUI()
 
 const parameters = {
-    color: 0xff0000
+    color: 0xff00f0,
+    spin: ()=>{
+        gsap.to(mesh.rotation,{
+            y:mesh.rotation.y + 10 ,
+            duration: 1,
+        })
+    }
 }
+
+
 
 gui
 .addColor(parameters, 'color')
 .onChange(()=>{
     material.color.set(parameters.color)
 })
+
+gui
+.add(parameters, 'spin')
 
 /**
  * Base
@@ -29,7 +40,7 @@ const scene = new THREE.Scene()
  * Object
  */
 const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2)
-const material = new THREE.MeshBasicMaterial({ color: '#ff0000' })
+const material = new THREE.MeshBasicMaterial({ color: parameters.color })
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
