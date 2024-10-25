@@ -1,8 +1,9 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import GUI from 'lil-gui'
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
 
-console.log(GUI)
+console.log(RGBELoader)
 
 let gui = new GUI()
 
@@ -32,14 +33,14 @@ gradientTexture.minFilter = THREE.NearestFilter
 gradientTexture.magFilter = THREE.NearestFilter
 gradientTexture.generateMipmaps = false
 
-const environmentMapTexture = cubeTextureLoader.load([
-    '/textures/environmentMaps/0/px.jpg',
-    '/textures/environmentMaps/0/nx.jpg',
-    '/textures/environmentMaps/0/py.jpg',
-    '/textures/environmentMaps/0/ny.jpg',
-    '/textures/environmentMaps/0/pz.jpg',
-    '/textures/environmentMaps/0/nz.jpg'
-])
+// const environmentMapTexture = cubeTextureLoader.load([
+//     '/textures/environmentMaps/0/px.jpg',
+//     '/textures/environmentMaps/0/nx.jpg',
+//     '/textures/environmentMaps/0/py.jpg',
+//     '/textures/environmentMaps/0/ny.jpg',
+//     '/textures/environmentMaps/0/pz.jpg',
+//     '/textures/environmentMaps/0/nz.jpg'
+// ])   //old nethod
 
 
 doorColorTexture.colorSpace = THREE.SRGBColorSpace
@@ -47,20 +48,30 @@ matcapTexture.colorSpace = THREE.SRGBColorSpace
 
 
 //ambient light
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
-scene.add(ambientLight)
+// const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+// scene.add(ambientLight)
 
-const light = new THREE.PointLight(0xffffff, 0.5)
-light.position.x = 2
-light.position.y = 3
-light.position.z = 4
-scene.add(light)
+// const light = new THREE.PointLight(0xffffff, 0.5)
+// light.position.x = 2
+// light.position.y = 3
+// light.position.z = 4
+// scene.add(light)
 
+//environment
+const rgbeloader = new RGBELoader()
+rgbeloader.load('./textures/environmentMaps/2k.hdr', (environmentMaps) =>{
+    environmentMaps.mapping = THREE.EquirectangularReflectionMapping
+
+    scene.background = environmentMaps
+    scene.environment = environmentMaps
+
+})
 
 //objects
 // const material = new THREE.MeshBasicMaterial({map : doorColorTexture})
 // material.wireframe  = true
 
+//MeshNoraml material
 // const material = new THREE.MeshNormalMaterial()
 // material.flatShading = true
 
@@ -93,25 +104,49 @@ scene.add(light)
 // material.transparent = true
 // material.alphaMap = doorAlphaTexture
 
-const material = new THREE.MeshStandardMaterial()
-material.metalness = 0.7; 
-material.roughness = 0.2;
-material.envMap = environmentMapTexture
+//meshphysical mat
+const material = new THREE.MeshPhysicalMaterial()
+material.metalness = 0; // Optional for better lighting effect
+material.roughness = 0;
+// material.map = doorColorTexture  
+// material.aoMap = doorAmbientOcclusionTexture
+// material.aoMapIntensity = 1
+// material.displacementMap = doorHeightTexture
+// material.displacementScale = 0.1
+// material.metalnessMap = doorMetalnessTexture
+// material.roughnessMap = doorRoughnessTexture
+// material.normalMap = doorNormalTexture
+// material.normalScale.set(0.5, 0.5)
+// material.transparent = true
+// material.alphaMap = doorAlphaTexture
 
 
 gui.add(material, 'metalness').min(0).max(1).step(0.0001)
 gui.add(material, 'roughness').min(0).max(1).step(0.0001)
-gui.add(material, 'aoMapIntensity').min(0).max(10).step(0.0001)
-gui.add(material, 'displacementScale').min(0).max(10).step(0.0001)
+
+//clearCoat
+// material.clearcoat = 1
+// material.clearcoatRoughness = 0
+
+// gui.add(material, 'clearcoat').min(0).max(1).step(0.0001)
+// gui.add(material, 'clearcoatRoughness').min(0).max(1).step(0.0001)
+
+material.transmission = 1
+material.ior = 1,5
+material.thickness = 0.5
+
+gui.add(material, 'transmission').min(0).max(1).step(0.0001)
+gui.add(material, 'ior').min(0).max(10).step(0.0001)
+gui.add(material, 'thickness').min(0).max(1).step(0.0001)
 
 const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(0.5, 64, 64),
     material
 )
 
-sphere.geometry.setAttribute(
-    'uv2', new THREE.BufferAttribute(sphere.geometry.attributes.uv.array, 2)
-)
+// sphere.geometry.setAttribute(
+//     'uv2', new THREE.BufferAttribute(sphere.geometry.attributes.uv.array, 2)
+// )
 
 sphere.position.x = -1.5
 
@@ -120,10 +155,10 @@ const plane = new THREE.Mesh(
     material
 )
 
-console.log(plane.geometry.attributes.uv)
-plane.geometry.setAttribute(
-    'uv2', new THREE.BufferAttribute(plane.geometry.attributes.uv.array, 2)
-)
+// console.log(plane.geometry.attributes.uv)
+// plane.geometry.setAttribute(
+//     'uv2', new THREE.BufferAttribute(plane.geometry.attributes.uv.array, 2)
+// )
 
 
 const torus = new THREE.Mesh(
@@ -131,9 +166,9 @@ const torus = new THREE.Mesh(
     material
 )
 
-torus.geometry.setAttribute(
-    'uv2', new THREE.BufferAttribute(torus.geometry.attributes.uv.array, 2)
-)
+// torus.geometry.setAttribute(
+//     'uv2', new THREE.BufferAttribute(torus.geometry.attributes.uv.array, 2)
+// )
 
 torus.position.x = 1.5
 
